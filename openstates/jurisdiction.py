@@ -13,6 +13,50 @@ POSTS = {
            'At-Large', 'Chairman']
 }
 
+
+def get_id(row):
+    name = row['name'].lower()
+    for x, y in [
+        (" ", "-"),
+        (",", ""),
+        ("and-", ""),
+    ]:
+        name = name.replace(x, y)
+
+
+    if row['chamber'] == "lower":
+        for x, y in [
+            ("first", "1st"),
+            ("second", "2nd"),
+            ("third", "3rd"),
+            ("fourth", "4th"),
+            ("fifth", "5th"),
+            ("sixth", "6th"),
+            ("seventh", "7th"),
+            ("eighth", "8th"),
+            ("ninth", "9th"),
+            ("tenth", "10th"),
+            ("eleventh", "11th"),
+            ("twelfth", "12th"),
+            ("thirteenth", "13th"),
+            ("fourteenth", "14th"),
+            ("fifteenth", "15th"),
+            ("sixteenth", "16th"),
+            ("seventeenth", "17th"),
+            ("eighteenth", "18th"),
+            ("nineteenth", "19th"),
+            ("twentieth", "20th"),
+        ]:
+            name = name.replace(x, y)
+
+    return "{abbr}-{chamber}-{name}".format(
+        abbr=row['abbr'],
+        chamber=row['chamber'],
+        name=name
+    ).lower()
+
+
+
 def chamber_name(state, chamber):
     if state in ('ne', 'dc'):
         raise ValueError(state)
@@ -108,9 +152,12 @@ def make_jurisdiction(a_state):
                                            classification=otype, parent_id=legislature._id)
                         districts = osbs.api('districts/{}/{}?'.format(a_state, otype))
                         for district in districts:
-                            division = ocd_districts.get(district['id'].lower())
-                            if division:
-                                division = division['id']
+                            try:
+                                division = ocd_districts[get_id(district)]['id']
+                            except KeyError:
+                                print("Unknown division: {}".format(district['name']))
+                                division = None
+
                             org.add_post(
                                 district['name'],
                                 metadata['chambers'][otype]['title'],
