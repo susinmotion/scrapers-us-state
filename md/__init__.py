@@ -7,7 +7,7 @@ from .people import MarylandPersonScraper
 
 
 class Maryland(Jurisdiction):
-    division_id = 'ocd-division/country:us/state:ak'
+    division_id = 'ocd-division/country:us/state:md'
     classification = 'government'
     name = "Maryland State Government"
     url = 'http://maryland.gov/'
