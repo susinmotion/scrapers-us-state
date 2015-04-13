@@ -3,7 +3,7 @@
 #   Paul R. Tagliamonte <paultag@sunlightfoundation.com>
 
 from pupa.scrape import Jurisdiction, Post, Organization
-from .people import AlabamaPersonScraper
+from .contributions import AlaskaContributionsScraper
 
 
 class Alaska(Jurisdiction):
@@ -13,7 +13,7 @@ class Alaska(Jurisdiction):
     url = 'http://alaska.gov/'
 
     scrapers = {
-        "people": AlaskaPACScraper,
+        "contributions": AlaskaContributionsScraper
     }
 
     def get_organizations(self):
