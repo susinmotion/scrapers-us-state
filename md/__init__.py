@@ -1,6 +1,6 @@
 # Copyright (c) Sunlight Foundation, 2014, under the terms of the BSD-3
 # license, a copy of which is in the root level LICENSE file.
-#   Paul R. Tagliamonte <paultag@sunlightfoundation.com>
+#   Benjamin Atwood <batwood@PC101561.local>
 
 from pupa.scrape import Jurisdiction, Post, Organization
 from .people import MarylandPersonScraper
