@@ -1,4 +1,4 @@
-from pupa.scrape import Scraper, Organization
+from pupa.scrape import Scraper, Organization, Person
 from utils import LXMLMixin  # XXX: Fixme - need a superpackage.
 
 import csv
@@ -11,10 +11,10 @@ SEARCH_URL = "https://aws.state.ak.us/ApocReports/StatementContributions/SCForms
 class AlaskaContributionsScraper(LXMLMixin, Scraper):
 
     def scrape(self):
-        yield from self.scrape_csv(csv.DictReader(open(
-            'SC_Forms_15-5_04-13-2015.CSV', 'r'
-        )))
-        # yield from self.scrape_csv_export()
+        # yield from self.scrape_csv(csv.DictReader(open(
+        #     'SC_Forms_15-5_04-13-2015.CSV', 'r'
+        # )))
+        yield from self.scrape_csv_export()
 
 
     def scrape_csv_export(self):
@@ -32,4 +32,8 @@ class AlaskaContributionsScraper(LXMLMixin, Scraper):
 
     def scrape_csv(self, reader):
         for row in reader:
-            print(row)
+            contributor = Person(
+                name="{Contact First Name} {Contact Last Name}".format(**row)
+            )
+            contributor.add_source(SEARCH_URL)
+            yield contributor
