@@ -4,7 +4,7 @@
 
 from pupa.scrape import Jurisdiction, Post, Organization
 from .people import MarylandPersonScraper
-
+from .registrations import MarylandRegistrationScraper
 
 class Maryland(Jurisdiction):
     division_id = 'ocd-division/country:us/state:ak'
@@ -14,6 +14,7 @@ class Maryland(Jurisdiction):
 
     scrapers = {
         "people": MarylandPACScraper,
+        'registrations', MarylandRegistrationScraper
     }
 
     def get_organizations(self):
