@@ -3,7 +3,7 @@
 #   Benjamin Atwood <batwood@PC101561.local>
 
 from pupa.scrape import Jurisdiction, Post, Organization
-from .people import MarylandPersonScraper
+# from .people import MarylandPersonScraper
 from .registrations import MarylandRegistrationScraper
 
 class Maryland(Jurisdiction):
@@ -13,8 +13,8 @@ class Maryland(Jurisdiction):
     url = 'http://maryland.gov/'
 
     scrapers = {
-        "people": MarylandPACScraper,
-        'registrations', MarylandRegistrationScraper
+        # "people": MarylandPACScraper,
+        'registrations': MarylandRegistrationScraper
     }
 
     def get_organizations(self):
