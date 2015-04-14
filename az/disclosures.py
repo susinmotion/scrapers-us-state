@@ -2,6 +2,9 @@ from pupa.scrape import Scraper
 from pupa.scrape import Disclosure
 from pupa.scrape.popolo import Organization
 
+from lxml import etree
+from lxml.html import HTMLParser
+
 
 class ArizonaDisclosureScraper(Scraper):
 
