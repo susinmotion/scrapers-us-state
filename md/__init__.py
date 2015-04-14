@@ -4,19 +4,17 @@
 
 from pupa.scrape import Jurisdiction, Post, Organization
 from .people import MarylandPersonScraper
-
+from .contributions import MarylandContributionsScraper
 
 class Maryland(Jurisdiction):
-    division_id = 'ocd-division/country:us/state:ak'
+    division_id = 'ocd-division/country:us/state:md'
     classification = 'government'
     name = "Maryland State Government"
     url = 'http://maryland.gov/'
 
     scrapers = {
         "people": MarylandPACScraper,
+        "contributions": MarylandContributionsScraper
     }
 
-    def get_organizations(self):
-        org = Organization(name='Maryland Executive Branch',
-                           classification='executive')
-        yield org
+        
