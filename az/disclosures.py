@@ -5,10 +5,16 @@ from pupa.scrape.popolo import Organization
 from lxml import etree
 from lxml.html import HTMLParser
 
+from datetime import datetime
+
 
 class ArizonaDisclosureScraper(Scraper):
 
     def scrape_super_pacs(self):
+
+        def reformat_date(datestring):
+            dt = datetime.strptime(datestring, '%m/%d/%Y')
+            return dt.strftime('%Y-%m-%d')
 
         def find_the_table(html_document):
             return html_document.xpath('//*[@id="ctl00_ctl00_MainPanel"]/table')[0]
@@ -29,8 +35,8 @@ class ArizonaDisclosureScraper(Scraper):
                     _data['org_name'] = _name
                     _data['org_address'] = _address
                     _data['org_phone'] = columns[2].text_content()
-                    _data['org_begin_date'] = columns[3].text_content()
-                    _data['org_end_date'] = columns[4].text_content()
+                    _data['org_begin_date'] = reformat_date(columns[3].text_content())
+                    _data['org_end_date'] = reformat_date(columns[4].text_content())
                     scraped_rows.append(_data)
             return scraped_rows
 
