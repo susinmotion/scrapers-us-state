@@ -47,8 +47,6 @@ class MarylandContributionsScraper(Scraper):
             if csv_data:
                 for result_objects in self.categorize_data(csv_data):
                     yield from result_objects
-            #TODO See if start and end dates are both inclusive in the search,
-            #if so, need to add a day here since we've already searched end_day
             start_day = end_day
             end_day = end_day + delta_days
 
@@ -65,6 +63,7 @@ class MarylandContributionsScraper(Scraper):
             if not line:
                 continue
 
+            # cur_obj will be the person or organization that made the contribution
             cur_obj = None
             contribution = Contribution(*line.split(','))
             
@@ -77,6 +76,9 @@ class MarylandContributionsScraper(Scraper):
                     #these look like catch-all business contributions
                     cur_obj = Organization(contribution.Contributor_Name)
             if cur_obj: 
+                #we don't set cur_obj in the event that there was an 
+                #anonymous/unknown contribution without a Contribution_Name
+                #so we need to check that it exists before adding to it
                 cur_obj.add_source(url=self.search_url)
                 cur_obj.source_identified = True
                 if contribution.Contributor_Address:
@@ -86,11 +88,13 @@ class MarylandContributionsScraper(Scraper):
                 if contribution.Employer_Occupation:
                     cur_obj.extras['Occupation'] = contribution.Employer_Occupation
                 
+                #recipiant_obj is the organization that received the contribution
                 recipiant_obj = Organization(contribution.Receiving_Committee)  
                 recipiant_obj.extras['Office'] = contribution.Office
                 recipiant_obj.extras['Filing Period'] = contribution.Filing_Period
                 recipiant_obj.extras['Fundtype'] = contribution.Fundtype
 
+                #transaction is the event linking the donor and recipiant
                 transaction = Event('Contribution', contribution.Contribution_Date, 'EST', 'Maryland') #EST and Maryland b/c MD
                 transaction.extras['Contribution Amount'] = contribution.Contribution_Amount
                 transaction.extras['Contribution Type'] = contribution.Contribution_Type
