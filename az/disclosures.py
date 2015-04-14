@@ -11,7 +11,7 @@ class ArizonaDisclosureScraper(Scraper):
     def scrape_super_pacs(self):
 
         def find_the_table(html_document):
-            return d.xpath('//*[@id="ctl00_ctl00_MainPanel"]/table')[0]
+            return html_document.xpath('//*[@id="ctl00_ctl00_MainPanel"]/table')[0]
 
         def separate_name_and_address(cell):
             name = cell.text
@@ -20,7 +20,7 @@ class ArizonaDisclosureScraper(Scraper):
 
         def scrape_table(table_element):
             scraped_rows = []
-            for row in table_element.xpath('tbody/tr'):
+            for row in table_element.xpath('tr'):
                 _data = {}
                 columns = row.xpath('td')
                 if len(columns) == 5:
@@ -36,15 +36,16 @@ class ArizonaDisclosureScraper(Scraper):
 
         PAC_LIST_URL = "http://apps.azsos.gov/apps/election/cfs/search/SuperPACList.aspx"
 
-        resp = self.urlretrieve(PAC_LIST_URL)
+        tmp, resp = self.urlretrieve(PAC_LIST_URL)
 
-        html_document = etree.fromstring(resp, parser=HTMLParser())
+        html_document = etree.fromstring(resp.content, parser=HTMLParser())
 
         target_table = find_the_table(html_document)
 
-        results = scrape_the_table(target_table)
+        results = scrape_table(target_table)
 
         for result in results:
+
             _org = Organization(
                 name=result['org_name'],
                 classification='political action committee',
@@ -74,5 +75,4 @@ class ArizonaDisclosureScraper(Scraper):
             yield _org
 
     def scrape(self):
-        # needs to be implemented
         yield from self.scrape_super_pacs()
