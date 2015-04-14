@@ -1,5 +1,6 @@
 __pycache__
 .tox
+.ipynb_checkpoints
 _cache
 _data
 *pyc
