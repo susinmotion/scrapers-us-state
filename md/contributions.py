@@ -63,11 +63,10 @@ class MarylandContributionsScraper(Scraper):
         for line in csv_data.split('\n'): # explicity defining delimiter because otherwise fails in case of single line
             if not line:
                 continue
+
             cur_obj = None
-            try:
-                contribution = Contribution(*line.split(','))
-            except Exception as e:
-                import pdb; pdb.set_trace()
+            contribution = Contribution(*line.split(','))
+            
             if contribution.Contributor_Type in self.business_contribution_types:
                 cur_obj = Organization(contribution.Contributor_Name)
             elif contribution.Contributor_Type in self.individual_contribution_types:
