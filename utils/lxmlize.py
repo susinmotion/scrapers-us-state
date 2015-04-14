@@ -10,8 +10,9 @@ class LXMLMixin(object):
          absolute.
     """
 
-    def lxmlize(self, url, method):
-        response = self.request(method, url)
+    def lxmlize(self, url, method, **kwargs):
+        response = self.request(method, url, **kwargs)
+        response.raise_for_status()
         page = lxml.html.fromstring(response.text)
         page.make_links_absolute(url)
         return page
