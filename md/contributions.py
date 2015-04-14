@@ -24,7 +24,10 @@ class MarylandContributionsScraper(Scraper):
                                    'Reimburse', 
                                    'Slate Committee',
                                    'Unregistered Out-of-State Non-Federal Committee']
-    individual_contribution_types = ['Individual', 'Individual - Matching fund request', 'Spouse (Candidate)', 'Self (Candidate)']
+    individual_contribution_types = ['Individual', 
+                                     'Individual - Matching fund request', 
+                                     'Spouse (Candidate)', 
+                                     'Self (Candidate)']
     search_url = 'https://campaignfinancemd.us/Public/ViewReceipts?theme=vista'
     csv_url = 'https://campaignfinancemd.us/Public/ExportCSVNew?page=1&orderBy=~&filter=~&Grid-size=15&theme=vista'
     csv_header_row = 'Contribution Date,Contributor Name,Contributor Address,Contributor Type,Employer Name,Employer Occupation,Contribution Type,Contribution Amount,Receiving Committee,Filing Period,Office,Fundtype,'
@@ -36,8 +39,7 @@ class MarylandContributionsScraper(Scraper):
         the server to know what csv data to send when you request it
         """
         today = datetime.datetime.today()
-        #start_day = datetime.datetime(1994, 1, 1, 0, 0) 
-        start_day = datetime.datetime(2005, 3, 1, 0, 0)
+        start_day = datetime.datetime(1994, 1, 1, 0, 0) 
         delta_days = datetime.timedelta(days=self.days_between)
         end_day = start_day + delta_days
         while end_day < today:
@@ -57,7 +59,6 @@ class MarylandContributionsScraper(Scraper):
             yield from result_objects      
 
     def categorize_data(self, csv_data):
-        #Is there a better place to define this?
         return_objs = []
         Contribution = namedtuple('Contribution', self.csv_header_row.replace(' ', '_'))
         for line in csv_data.split('\n'): # explicity defining delimiter because otherwise fails in case of single line
@@ -99,7 +100,8 @@ class MarylandContributionsScraper(Scraper):
                 transaction.participants.append(recipiant_obj.as_dict())
                 yield (cur_obj, recipiant_obj, transaction)        
             else:
-                yield [] 
+                yield []
+ 
     def search_date_range_csv(self, start_day, end_day):
         # start_date and end_date are datetime objects
         date_range_params = {'dtStartDate': datetime.datetime.strftime(start_day, '%m/%d/%Y'),
@@ -118,8 +120,7 @@ class MarylandContributionsScraper(Scraper):
         if (ind == len(csv_resp.text)-1) or (ind == -1):
             return None
         else:
-            return csv_resp.text[ind+1:]
-        
+            return csv_resp.text[ind+1:]        
 
     def generate_post_params (self, params):
         # params is a dict containing only the parameters to be set 
