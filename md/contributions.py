@@ -24,7 +24,10 @@ class MarylandContributionsScraper(Scraper):
                                    'Reimburse', 
                                    'Slate Committee',
                                    'Unregistered Out-of-State Non-Federal Committee']
-    individual_contribution_types = ['Individual', 'Individual - Matching fund request', 'Spouse (Candidate)', 'Self (Candidate)']
+    individual_contribution_types = ['Individual', 
+                                     'Individual - Matching fund request', 
+                                     'Spouse (Candidate)', 
+                                     'Self (Candidate)']
     search_url = 'https://campaignfinancemd.us/Public/ViewReceipts?theme=vista'
     csv_url = 'https://campaignfinancemd.us/Public/ExportCSVNew?page=1&orderBy=~&filter=~&Grid-size=15&theme=vista'
     csv_header_row = 'Contribution Date,Contributor Name,Contributor Address,Contributor Type,Employer Name,Employer Occupation,Contribution Type,Contribution Amount,Receiving Committee,Filing Period,Office,Fundtype,'
@@ -36,8 +39,7 @@ class MarylandContributionsScraper(Scraper):
         the server to know what csv data to send when you request it
         """
         today = datetime.datetime.today()
-        #start_day = datetime.datetime(1994, 1, 1, 0, 0) 
-        start_day = datetime.datetime(2005, 3, 1, 0, 0)
+        start_day = datetime.datetime(1994, 1, 1, 0, 0) 
         delta_days = datetime.timedelta(days=self.days_between)
         end_day = start_day + delta_days
         while end_day < today:
@@ -45,8 +47,6 @@ class MarylandContributionsScraper(Scraper):
             if csv_data:
                 for result_objects in self.categorize_data(csv_data):
                     yield from result_objects
-            #TODO See if start and end dates are both inclusive in the search,
-            #if so, need to add a day here since we've already searched end_day
             start_day = end_day
             end_day = end_day + delta_days
 
@@ -57,17 +57,16 @@ class MarylandContributionsScraper(Scraper):
             yield from result_objects      
 
     def categorize_data(self, csv_data):
-        #Is there a better place to define this?
         return_objs = []
         Contribution = namedtuple('Contribution', self.csv_header_row.replace(' ', '_'))
         for line in csv_data.split('\n'): # explicity defining delimiter because otherwise fails in case of single line
             if not line:
                 continue
+
+            # cur_obj will be the person or organization that made the contribution
             cur_obj = None
-            try:
-                contribution = Contribution(*line.split(','))
-            except Exception as e:
-                import pdb; pdb.set_trace()
+            contribution = Contribution(*line.split(','))
+            
             if contribution.Contributor_Type in self.business_contribution_types:
                 cur_obj = Organization(contribution.Contributor_Name)
             elif contribution.Contributor_Type in self.individual_contribution_types:
@@ -77,6 +76,9 @@ class MarylandContributionsScraper(Scraper):
                     #these look like catch-all business contributions
                     cur_obj = Organization(contribution.Contributor_Name)
             if cur_obj: 
+                #we don't set cur_obj in the event that there was an 
+                #anonymous/unknown contribution without a Contribution_Name
+                #so we need to check that it exists before adding to it
                 cur_obj.add_source(url=self.search_url)
                 cur_obj.source_identified = True
                 if contribution.Contributor_Address:
@@ -86,11 +88,13 @@ class MarylandContributionsScraper(Scraper):
                 if contribution.Employer_Occupation:
                     cur_obj.extras['Occupation'] = contribution.Employer_Occupation
                 
+                #recipiant_obj is the organization that received the contribution
                 recipiant_obj = Organization(contribution.Receiving_Committee)  
                 recipiant_obj.extras['Office'] = contribution.Office
                 recipiant_obj.extras['Filing Period'] = contribution.Filing_Period
                 recipiant_obj.extras['Fundtype'] = contribution.Fundtype
 
+                #transaction is the event linking the donor and recipiant
                 transaction = Event('Contribution', contribution.Contribution_Date, 'EST', 'Maryland') #EST and Maryland b/c MD
                 transaction.extras['Contribution Amount'] = contribution.Contribution_Amount
                 transaction.extras['Contribution Type'] = contribution.Contribution_Type
@@ -100,7 +104,8 @@ class MarylandContributionsScraper(Scraper):
                 transaction.participants.append(recipiant_obj.as_dict())
                 yield (cur_obj, recipiant_obj, transaction)        
             else:
-                yield [] 
+                yield []
+ 
     def search_date_range_csv(self, start_day, end_day):
         # start_date and end_date are datetime objects
         date_range_params = {'dtStartDate': datetime.datetime.strftime(start_day, '%m/%d/%Y'),
@@ -119,8 +124,7 @@ class MarylandContributionsScraper(Scraper):
         if (ind == len(csv_resp.text)-1) or (ind == -1):
             return None
         else:
-            return csv_resp.text[ind+1:]
-        
+            return csv_resp.text[ind+1:]        
 
     def generate_post_params (self, params):
         # params is a dict containing only the parameters to be set 
