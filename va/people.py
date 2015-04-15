@@ -1,8 +1,8 @@
 from pupa.scrape import Scraper
-from pupa.scrape import Bill
+from pupa.scrape import Person
 
 
-class VirginiaBillScraper(Scraper):
+class VirginiaPersonScraper(Scraper):
 
     def scrape(self):
         # needs to be implemented
